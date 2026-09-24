@@ -105,6 +105,16 @@ up automatically for `build/_build.csproj`. Verified with `dotnet run --project 
 --launch-profile Test` (and `--launch-profile "PackBundle (Release)"`, which correctly
 produced `installer/App.Bundle/bin/x64/Release/App.Bundle.exe`).
 
+## CI: release on push to master
+
+`.github/workflows/release.yml` is generated from the `[GitHubActions]` attribute on `Build` in
+`build/Build.cs` - don't hand-edit the `.yml`; change the attribute and run the build once to
+regenerate it. On every push to `master` it runs `PublishRelease` (which depends on
+`PackBundle`) on `windows-latest`, creating a GitHub Release tagged `build-<run number>` -
+always unique, no collisions across re-runs - marked as a prerelease, with `App.Bundle.exe`
+attached. Auth is `GITHUB_TOKEN`, provided automatically by Actions; no secrets to configure.
+`global.json` pins the SDK version `actions/setup-dotnet` installs.
+
 ## Why a local WiX NuGet feed?
 
 WiX v6+ pre-built NuGet packages (`WixToolset.Sdk`, every `WixToolset.*.wixext`) are covered by

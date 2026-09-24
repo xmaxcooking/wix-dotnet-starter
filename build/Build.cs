@@ -1,10 +1,16 @@
+using System.IO;
+using System.Threading.Tasks;
 using Fallout.Common;
+using Fallout.Common.CI.GitHubActions;
 using Fallout.Common.Execution;
+using Fallout.Common.Git;
 using Fallout.Common.IO;
 using Fallout.Common.Tooling;
 using Fallout.Common.Tools.DotNet;
+using Fallout.Common.Tools.GitHub;
 using Fallout.Common.Utilities.Collections;
 using Fallout.Solutions;
+using Octokit;
 using static Fallout.Common.EnvironmentInfo;
 using static Fallout.Common.Tools.DotNet.DotNetTasks;
 
@@ -14,6 +20,19 @@ using static Fallout.Common.Tools.DotNet.DotNetTasks;
 // solution's default build via <Build Project="false" />, see the .slnx). `PackBundle`
 // builds it explicitly, needing the .NET Desktop Runtime installer downloaded first -
 // see installer/App.Bundle/Redist/README.md - so it's not part of the default target.
+//
+// [GitHubActions] generates .github/workflows/release.yml from the attribute below - edit
+// here and run the build once (locally, or let CI's first run rewrite it) to regenerate;
+// never hand-edit the .yml. windows-latest because the whole pipeline (WinForms, WiX,
+// MSI/Burn) is Windows-only.
+[GitHubActions(
+    "release",
+    GitHubActionsImage.WindowsLatest,
+    OnPushBranches = new[] { "master" },
+    InvokedTargets = new[] { nameof(PublishRelease) },
+    EnableGitHubToken = true,
+    WritePermissions = new[] { GitHubActionsPermissions.Contents },
+    PublishArtifacts = false)]
 class Build : FalloutBuild
 {
     public static int Main() => Execute<Build>(x => x.Test);
@@ -22,6 +41,11 @@ class Build : FalloutBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Solution] readonly Solution Solution;
+    [GitRepository] readonly GitRepository GitRepository;
+
+    [Parameter("GitHub token used to create the release - set via GITHUB_TOKEN, provided automatically in Actions")]
+    [Secret]
+    readonly string GitHubToken = GitHubActions.Instance?.Token;
 
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath BundleProject => RootDirectory / "installer" / "App.Bundle" / "App.Bundle.wixproj";
@@ -65,5 +89,41 @@ class Build : FalloutBuild
             ArtifactsDirectory.CreateOrCleanDirectory();
             BundleProject.Parent.GlobFiles($"bin/x64/{Configuration}/*.exe")
                 .ForEach(x => x.CopyToDirectory(ArtifactsDirectory, ExistsPolicy.FileOverwriteIfNewer));
+        });
+
+    // Runs on every push to master (see the [GitHubActions] attribute above): creates a GitHub
+    // Release tagged by the CI run number - always unique, never collides across re-runs - and
+    // uploads App.Bundle.exe to it. Marked Prerelease since it's an unattended per-push build,
+    // not a curated version; flip that (and the tag scheme) if you want deliberate releases
+    // instead.
+    Target PublishRelease => _ => _
+        .DependsOn(PackBundle)
+        .Requires(() => GitHubToken)
+        .Executes(async () =>
+        {
+            GitHubTasks.GitHubClient.Credentials = new Credentials(GitHubToken);
+
+            var tag = $"build-{GitHubActions.Instance.RunNumber}";
+            var release = await GitHubTasks.GitHubClient.Repository.Release.Create(
+                GitRepository.GetGitHubOwner(),
+                GitRepository.GetGitHubName(),
+                new NewRelease(tag)
+                {
+                    Name = tag,
+                    TargetCommitish = GitHubActions.Instance.Sha,
+                    Prerelease = true,
+                    Body = $"Automated build from commit {GitHubActions.Instance.Sha}."
+                });
+
+            foreach (var file in ArtifactsDirectory.GlobFiles("*.exe"))
+            {
+                await using var stream = File.OpenRead(file);
+                await GitHubTasks.GitHubClient.Repository.Release.UploadAsset(release, new ReleaseAssetUpload
+                {
+                    FileName = file.Name,
+                    ContentType = "application/octet-stream",
+                    RawData = stream
+                });
+            }
         });
 }

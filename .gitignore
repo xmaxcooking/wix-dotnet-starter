@@ -13,10 +13,12 @@ out/
 *.msi
 *.wixobj
 *.exe
+!installer/App.Bundle/Redist/*.exe
 
-# Redistributables to be downloaded locally, not checked in - see Redist/README.md
-installer/App.Bundle/Redist/*
-!installer/App.Bundle/Redist/README.md
+# Fallout build pipeline - generated/local, parameters.json is checked in
+.fallout/temp/
+.fallout/build.schema.json
+artifacts/
 
 # Rider
 .idea/

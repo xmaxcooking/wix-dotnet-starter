@@ -1,7 +1,16 @@
 <Solution>
+  <Folder Name="/build/">
+    <Project Path="build/_build.csproj">
+      <Build Project="false" />
+    </Project>
+  </Folder>
   <Folder Name="/installer/">
     <Project Path="installer/App.Installer/App.Installer.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
       <Platform Solution="*|*" Project="x64" />
+    </Project>
+    <Project Path="installer/App.Bundle/App.Bundle.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+      <Platform Solution="*|*" Project="x64" />
+      <Build Project="false" />
     </Project>
   </Folder>
   <Folder Name="/src/">

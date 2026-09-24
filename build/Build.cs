@@ -1,4 +1,7 @@
+using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Fallout.Common;
 using Fallout.Common.CI.GitHubActions;
@@ -61,8 +64,36 @@ class Build : FalloutBuild
         });
 
     Target Restore => _ => _
-        .Executes(() => DotNetRestore(s => s
-            .SetProjectFile(Solution)));
+        .Executes(() =>
+        {
+            DotNetRestore(s => s
+                .SetProjectFile(Solution));
+
+            AcceptWixEula();
+        });
+
+    // WiX v7's Open Source Maintenance Fee EULA gate (error WIX7015) needs a one-time
+    // per-machine acceptance marker before any project referencing WixToolset.Sdk will
+    // compile - see tools/wix-nuget-feed/README.md. A fresh clone or a CI runner (a brand
+    // new VM every run) never has that marker, so this can't be a one-off a developer runs
+    // locally once; it has to happen as part of Restore, every time. Cheap when already
+    // accepted - wix.exe itself no-ops on a second acceptance.
+    static void AcceptWixEula()
+    {
+        var nugetPackages = GetVariable("NUGET_PACKAGES")
+            ?? Path.Combine(GetVariable("USERPROFILE") ?? GetVariable("HOME")!, ".nuget", "packages");
+
+        var wixExe = Directory.GetFiles(nugetPackages, "wix.exe", SearchOption.AllDirectories)
+            .FirstOrDefault(x => x.Contains("wixtoolset.sdk", StringComparison.OrdinalIgnoreCase));
+        if (wixExe == null)
+            throw new InvalidOperationException(
+                "wix.exe not found under the NuGet packages folder after restore - was WixToolset.Sdk restored?");
+
+        using var process = Process.Start(new ProcessStartInfo(wixExe, "eula accept wix7") { UseShellExecute = false });
+        process!.WaitForExit();
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException("'wix eula accept wix7' failed");
+    }
 
     Target Compile => _ => _
         .DependsOn(Restore)

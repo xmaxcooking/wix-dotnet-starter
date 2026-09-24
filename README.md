@@ -91,6 +91,13 @@ same plus provision the .NET SDK itself if it's missing, which is what a CI runn
 `build/Build.cs` is the pipeline definition - add targets there the same way you'd add any
 other C# method, e.g. a `Push` target that publishes `App.Bundle.exe` somewhere.
 
+`build/Properties/launchSettings.json` has one profile per target (`Test`, `PackBundle`, a
+`PackBundle (Release)` variant, ...), so you can run/debug any of them from an IDE's run
+configuration dropdown instead of the command line - Visual Studio and Rider both pick these
+up automatically for `build/_build.csproj`. Verified with `dotnet run --project build/_build.csproj
+--launch-profile Test` (and `--launch-profile "PackBundle (Release)"`, which correctly
+produced `installer/App.Bundle/bin/x64/Release/App.Bundle.exe`).
+
 ## Adapting this template
 
 - `installer/App.Installer/Components.wxs` lists the App.WinForms build output explicitly,

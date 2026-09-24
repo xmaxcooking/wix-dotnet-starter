@@ -1,0 +1,32 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!--
+    Entry point for the installer: product identity plus what gets installed.
+    Placeholder values (Manufacturer, UpgradeCode, ...) should be replaced by
+    consumers of this template.
+
+    NEVER change UpgradeCode once shipped, or upgrades will stop detecting
+    the prior install. Bump Version on every release that should upgrade in place.
+  -->
+  <Package Name="App.WinForms Sample"
+            Manufacturer="Your Company"
+            Version="1.0.0.0"
+            UpgradeCode="1B9A3F2C-6E4D-4B7A-9C1E-2F5D8A7C3B10">
+
+    <SummaryInformation Description="Your Company's App.WinForms Sample Installer" Manufacturer="Your Company" Keywords="Installer" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="App.WinForms Sample" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Avoids ICE43 (advertised shortcuts wanting an HKCU keypath) for our non-advertised Start Menu shortcut. -->
+    <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+
+  </Package>
+</Wix>

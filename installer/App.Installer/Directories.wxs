@@ -1,0 +1,14 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!--Directory layout used by Product.wxs and Components.wxs.-->
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="App.WinForms Sample" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="App.WinForms Sample" />
+    </StandardDirectory>
+  </Fragment>
+</Wix>

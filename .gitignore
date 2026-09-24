@@ -1,0 +1,22 @@
+## .NET / Visual Studio
+
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# WiX / MSI build output
+*.wixpdb
+*.msi
+*.wixobj
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS
+.DS_Store
+Thumbs.db

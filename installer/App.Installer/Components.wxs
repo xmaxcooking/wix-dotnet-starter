@@ -1,0 +1,50 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!--
+    Files that get deployed to the customer's machine, listed explicitly rather than
+    harvested at build time. Keeping the list (and each Component's Guid) stable and
+    checked in is what makes MSI upgrades work reliably - regenerating GUIDs on every
+    build would break upgrade detection.
+
+    $(var.App.TargetDir) comes from the ProjectReference to App.WinForms in
+    App.Installer.wixproj (its <Name>App</Name> metadata). When you add projects or
+    change dependencies, update this list to match the new build output.
+  -->
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="App.WinForms.exe" Guid="746C3AEA-3D80-449E-AB4D-2294BC4872FA">
+        <File Id="App.WinForms.exe" Source="$(var.App.TargetDir)App.WinForms.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="ApplicationProgramsFolder"
+                    Name="App.WinForms Sample"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Advertise="yes" />
+        </File>
+      </Component>
+
+      <Component Id="App.WinForms.dll" Guid="47CBF263-8913-472E-9368-C2664E54AAE4">
+        <File Id="App.WinForms.dll" Source="$(var.App.TargetDir)App.WinForms.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.WinForms.runtimeconfig.json" Guid="68AC37FC-A81A-4863-B013-12AF99FBA8AA">
+        <File Id="App.WinForms.runtimeconfig.json" Source="$(var.App.TargetDir)App.WinForms.runtimeconfig.json" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.WinForms.deps.json" Guid="9E4A3A39-124F-469D-8B4C-69E082BBC5E5">
+        <File Id="App.WinForms.deps.json" Source="$(var.App.TargetDir)App.WinForms.deps.json" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Core.dll" Guid="D8D27FAF-0D4A-430F-8830-49523EE0B88B">
+        <File Id="App.Core.dll" Source="$(var.App.TargetDir)App.Core.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">
+        <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\YourCompany\App.WinForms Sample" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>

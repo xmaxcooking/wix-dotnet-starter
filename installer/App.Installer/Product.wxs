@@ -19,6 +19,10 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- Shown for the product's entry in Add/Remove Programs. -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.ProjectDir)..\..\assets\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+
     <Feature Id="ProductFeature" Title="App.WinForms Sample" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
@@ -26,6 +30,9 @@
     <!-- Pulls in CustomActions.wxs - see the comment there for why this is required. -->
     <CustomActionRef Id="ValidateSampleProperty" />
     <CustomActionRef Id="WriteSampleMarkerFile" />
+
+    <!-- Placeholder license text (Lorem ipsum) shown on WixUI_InstallDir's License Agreement page - replace before shipping. -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)..\..\assets\License.rtf" />
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 

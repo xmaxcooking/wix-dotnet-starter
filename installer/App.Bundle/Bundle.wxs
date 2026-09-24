@@ -12,19 +12,51 @@
   <Bundle Name="App.WinForms Sample"
           Version="1.0.0.0"
           Manufacturer="Your Company"
-          UpgradeCode="93EC7F40-82CC-46B7-AF11-75BC480A637F">
+          UpgradeCode="93EC7F40-82CC-46B7-AF11-75BC480A637F"
+          IconSourceFile="$(var.ProjectDir)..\..\assets\icon.ico">
 
     <BootstrapperApplication>
+      <!-- LicenseFile is the same placeholder AGB (Lorem ipsum) used for the MSI's license page - see App.Installer/Product.wxs. -->
       <bal:WixStandardBootstrapperApplication
-        Theme="hyperlinkLicense"
-        LicenseUrl=""
+        Theme="rtfLicense"
+        LicenseFile="$(var.ProjectDir)..\..\assets\License.rtf"
+        LogoFile="$(var.ProjectDir)..\..\assets\logo.png"
         SuppressOptionsUI="yes"
         SuppressRepair="yes" />
     </BootstrapperApplication>
 
+    <!--
+      Bundle-wide gate evaluated before any package runs. VersionNT is a Burn built-in
+      variable; v10.0 is Windows 10 / Server 2016. Swap the expression or add more
+      bal:Condition elements (they all must pass) for other prerequisites - OS
+      architecture, a minimum amount of RAM, etc.
+    -->
+    <bal:Condition Condition="VersionNT &gt;= v10.0" Message="This application requires Windows 10 or later." />
+
+    <!--
+      Overridable bundle-scoped variable: pass a value on the command line with
+      App.Bundle.exe /SampleBundleVariable=SomeValue. Installers/App.wxs hands its
+      value into App.Installer.msi's SAMPLEPROPERTY property, which
+      ValidateSampleProperty (installer/App.Actions/Actions.cs, wired up in
+      installer/App.Installer/CustomActions.wxs) reads during install - together they're
+      a worked example of passing data from the bundle command line through to a
+      custom action in the chained MSI.
+    -->
+    <Variable Name="SampleBundleVariable" Type="string" Value="" bal:Overridable="yes" />
+
     <!--install order-->
     <Chain>
       <PackageGroupRef Id="DotNetDesktopRuntime" />
+
+      <!--
+        Splits the chain into two rollback transactions. If App.Installer.msi fails
+        after this point, Burn only rolls back packages installed after the boundary
+        (the app itself) - the .NET Desktop Runtime stays installed rather than being
+        torn down, since another product on the machine might depend on it too. Add
+        more RollbackBoundary elements to carve the chain into further transactions.
+      -->
+      <RollbackBoundary Id="AfterPrerequisites" />
+
       <PackageGroupRef Id="App" />
     </Chain>
 

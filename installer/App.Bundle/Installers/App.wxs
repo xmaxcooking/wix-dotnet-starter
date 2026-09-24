@@ -5,7 +5,10 @@
                   SourceFile="$(var.Installer.TargetPath)"
                   Compressed="yes"
                   Permanent="no"
-                  Vital="yes" />
+                  Vital="yes">
+        <!-- Feeds the bundle-scoped SampleBundleVariable (see Bundle.wxs) into the MSI's SAMPLEPROPERTY property. -->
+        <MsiProperty Name="SAMPLEPROPERTY" Value="[SampleBundleVariable]" />
+      </MsiPackage>
     </PackageGroup>
   </Fragment>
 </Wix>

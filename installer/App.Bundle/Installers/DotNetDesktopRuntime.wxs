@@ -1,4 +1,5 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Fragment>
     <!--
       Prerequisite: .NET 10 Desktop Runtime (x64), needed at runtime since
@@ -8,14 +9,21 @@
       redistributable that gets a new patch release roughly monthly, so refresh it
       periodically from https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe
 
-      No DetectCondition: the official installer is idempotent and exits quickly
-      when the runtime is already present, so this always runs it rather than
-      probing the registry for an exact installed version. For a stricter check
-      that skips the run entirely when already installed, add a util:RegistrySearch
-      (from the WixToolset.Util.wixext package) against
-      HKLM\SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App
-      and wire its result into DetectCondition - see the WiX util:RegistrySearch docs.
+      util:RegistrySearch below looks for ANY value under the key the runtime's own
+      installer populates, and DetectCondition skips running the ExePackage at all when
+      it's found. This is a simplification, not an exact-version check: it doesn't pin
+      a minimum version, so an old 10.0.0 preview would already count as "installed".
+      Tighten it with Result="value" against a specific version value name (or drop the
+      search and DetectCondition entirely) if you need that guarantee - the official
+      installer is idempotent either way, so leaving both out just means it always runs
+      and exits quickly when already present.
     -->
+    <util:RegistrySearch Id="WindowsDesktopRuntimeSearch"
+                          Variable="WindowsDesktopRuntimeInstalled"
+                          Root="HKLM"
+                          Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App"
+                          Result="exists" />
+
     <PackageGroup Id="DotNetDesktopRuntime">
       <ExePackage Id="DotNetDesktopRuntime"
                   DisplayName=".NET 10 Desktop Runtime (x64)"
@@ -24,6 +32,7 @@
                   PerMachine="yes"
                   Permanent="yes"
                   Vital="yes"
+                  DetectCondition="WindowsDesktopRuntimeInstalled"
                   InstallArguments="/install /quiet /norestart" />
     </PackageGroup>
   </Fragment>

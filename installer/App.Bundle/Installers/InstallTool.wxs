@@ -1,0 +1,25 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <!--
+      Runs installer/App.InstallTool as a normal process ahead of the MSI - see that
+      project's own comment for why this exists instead of an MSI custom action.
+
+      $(var.InstallTool.TargetPath) comes from the ProjectReference to App.InstallTool in
+      App.Bundle.wixproj (its <Name>InstallTool</Name> metadata).
+
+      Permanent="yes" because there's nothing to uninstall - it's a one-shot tool with no
+      persistent footprint, not a shared component like DotNetDesktopRuntime. No
+      DetectCondition, so - like DotNetDesktopRuntime - it always runs.
+    -->
+    <PackageGroup Id="InstallTool">
+      <ExePackage Id="InstallTool"
+                  DisplayName="App Install Tool"
+                  SourceFile="$(var.InstallTool.TargetPath)"
+                  Compressed="yes"
+                  PerMachine="yes"
+                  Permanent="yes"
+                  Vital="yes"
+                  InstallArguments="&quot;[SampleBundleVariable]&quot;" />
+    </PackageGroup>
+  </Fragment>
+</Wix>

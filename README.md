@@ -17,6 +17,8 @@ tests/
   App.Core.Tests/  MSTest tests for App.Core
 installer/
   App.Actions/     managed custom actions (net48) for the MSI - see CustomActions.wxs
+  App.InstallTool/ .NET 10 console app run as a Burn ExePackage - the pattern for install-time
+                    code that needs modern .NET, since App.Actions (an MSI custom action) can't
   App.Installer/   WiX v7 MSI packaging App.WinForms (installer/App.Installer/App.Installer.wixproj)
   App.Bundle/      WiX v7 Burn bootstrapper chaining the .NET 10 Desktop Runtime + App.Installer.msi
                     into one .exe (installer/App.Bundle/App.Bundle.wixproj) - see below, listed in
@@ -158,3 +160,13 @@ Notes:
   always runs the runtime installer (harmless - it's idempotent) rather than probing the
   registry for an exact installed version. See the comment in that file for how to tighten it.
 - `App.Core` is the seam for real domain code / data access; `App.WinForms` is the seam for UI.
+- MSI custom actions (`App.Actions`) can only ever be .NET Framework - `msiexec` loads them via
+  `mscoree.dll`, which has no path to modern .NET, and this is a hard limitation of Windows
+  Installer itself, not something WiX can fix (still an open, unresolved WiX feature request:
+  [wixtoolset/issues#7932](https://github.com/wixtoolset/issues/issues/7932)). If install-time
+  code needs a modern .NET library, run it as a Burn `ExePackage` instead - Burn just launches
+  it as a normal process, no `mscoree` involved. `App.InstallTool` is a worked example of this,
+  wired into `Bundle.wxs`'s `Chain` via `Installers/InstallTool.wxs`; it receives the same
+  `SampleBundleVariable` the MSI custom action does, as a command-line argument instead of an
+  MSI property. Trade-off: no direct access to the MSI session, only what's passed via args and
+  the exit code back.

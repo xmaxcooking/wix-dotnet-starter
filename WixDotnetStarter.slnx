@@ -11,6 +11,9 @@
     <Project Path="installer/App.Actions/App.Actions.csproj">
       <Platform Solution="*|*" Project="x64" />
     </Project>
+    <Project Path="installer/App.InstallTool/App.InstallTool.csproj">
+      <Platform Solution="*|*" Project="x64" />
+    </Project>
     <Project Path="installer/App.Installer/App.Installer.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
       <Platform Solution="*|*" Project="x64" />
     </Project>

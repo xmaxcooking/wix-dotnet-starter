@@ -35,12 +35,13 @@
 
     <!--
       Overridable bundle-scoped variable: pass a value on the command line with
-      App.Bundle.exe /SampleBundleVariable=SomeValue. Installers/App.wxs hands its
-      value into App.Installer.msi's SAMPLEPROPERTY property, which
+      App.Bundle.exe /SampleBundleVariable=SomeValue. Two different consumers read it:
+      Installers/App.wxs hands it into App.Installer.msi's SAMPLEPROPERTY property, which
       ValidateSampleProperty (installer/App.Actions/Actions.cs, wired up in
-      installer/App.Installer/CustomActions.wxs) reads during install - together they're
-      a worked example of passing data from the bundle command line through to a
-      custom action in the chained MSI.
+      installer/App.Installer/CustomActions.wxs) reads during install; Installers/InstallTool.wxs
+      passes it as a command-line argument to installer/App.InstallTool instead - a worked
+      example of the same bundle variable reaching an MSI custom action (net472-only) and a
+      plain .NET 10 console app (run as a Burn ExePackage) by two different routes.
     -->
     <Variable Name="SampleBundleVariable" Type="string" Value="" bal:Overridable="yes" />
 
@@ -57,6 +58,7 @@
       -->
       <RollbackBoundary Id="AfterPrerequisites" />
 
+      <PackageGroupRef Id="InstallTool" />
       <PackageGroupRef Id="App" />
     </Chain>
 

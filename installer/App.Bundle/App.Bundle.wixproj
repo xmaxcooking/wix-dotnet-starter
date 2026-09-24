@@ -15,6 +15,12 @@
       <Name>Installer</Name>
       <DoNotHarvest>True</DoNotHarvest>
     </ProjectReference>
+
+    <!-- Runs as an ExePackage in the Chain, not an MSI custom action - see Installers/InstallTool.wxs. -->
+    <ProjectReference Include="..\App.InstallTool\App.InstallTool.csproj">
+      <Name>InstallTool</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

@@ -12,6 +12,11 @@ out/
 *.wixpdb
 *.msi
 *.wixobj
+*.exe
+
+# Redistributables to be downloaded locally, not checked in - see Redist/README.md
+installer/App.Bundle/Redist/*
+!installer/App.Bundle/Redist/README.md
 
 # Rider
 .idea/

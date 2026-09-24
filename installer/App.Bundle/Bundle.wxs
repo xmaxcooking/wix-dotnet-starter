@@ -1,0 +1,32 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+  <!--
+    Bootstrapper (.exe) chaining prerequisites ahead of App.Installer.msi.
+    Gives a single-file, nicer install experience than double-clicking the MSI,
+    and a place to add more prerequisites (a redistributable, SQL Server, ...)
+    the way the referenced Carross installer's bundle does.
+
+    NEVER change UpgradeCode once shipped, or bundle upgrades will stop working.
+  -->
+  <Bundle Name="App.WinForms Sample"
+          Version="1.0.0.0"
+          Manufacturer="Your Company"
+          UpgradeCode="93EC7F40-82CC-46B7-AF11-75BC480A637F">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+        Theme="hyperlinkLicense"
+        LicenseUrl=""
+        SuppressOptionsUI="yes"
+        SuppressRepair="yes" />
+    </BootstrapperApplication>
+
+    <!--install order-->
+    <Chain>
+      <PackageGroupRef Id="DotNetDesktopRuntime" />
+      <PackageGroupRef Id="App" />
+    </Chain>
+
+  </Bundle>
+</Wix>

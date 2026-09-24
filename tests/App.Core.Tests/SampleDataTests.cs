@@ -2,21 +2,22 @@ using App.Core;
 
 namespace App.Core.Tests;
 
+[TestClass]
 public class SampleDataTests
 {
-    [Fact]
+    [TestMethod]
     public void GetCustomers_ReturnsNonEmptyList()
     {
         var customers = SampleData.GetCustomers();
 
-        Assert.NotEmpty(customers);
+        Assert.AreNotEqual(0, customers.Count);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetCustomers_HasUniqueIds()
     {
         var customers = SampleData.GetCustomers();
 
-        Assert.Equal(customers.Count, customers.Select(c => c.Id).Distinct().Count());
+        Assert.AreEqual(customers.Count, customers.Select(c => c.Id).Distinct().Count());
     }
 }

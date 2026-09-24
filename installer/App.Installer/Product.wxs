@@ -23,6 +23,10 @@
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
 
+    <!-- Pulls in CustomActions.wxs - see the comment there for why this is required. -->
+    <CustomActionRef Id="ValidateSampleProperty" />
+    <CustomActionRef Id="WriteSampleMarkerFile" />
+
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 
     <!-- Avoids ICE43 (advertised shortcuts wanting an HKCU keypath) for our non-advertised Start Menu shortcut. -->

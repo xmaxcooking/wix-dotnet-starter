@@ -11,6 +11,12 @@
       <DoNotHarvest>True</DoNotHarvest>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+
+    <!-- Custom action DLL, embedded into the MSI's Binary table - see CustomActions.wxs. -->
+    <ProjectReference Include="..\App.Actions\App.Actions.csproj">
+      <Name>Actions</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

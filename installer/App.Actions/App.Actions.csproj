@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Windows Installer hosts custom action DLLs through the classic mscoree CLR shim,
+    which only understands .NET Framework - it cannot load modern .NET assemblies.
+    This project has to stay on net48 even though the rest of the solution targets
+    net10.0; keep it free of ProjectReferences to net10.0 projects for the same reason.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>x64</Platforms>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Dtf.WindowsInstaller" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Dtf.CustomAction" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

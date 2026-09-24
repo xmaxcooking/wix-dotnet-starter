@@ -12,7 +12,7 @@
   <Package Name="App.WinForms Sample"
             Manufacturer="Your Company"
             Version="1.0.0.0"
-            UpgradeCode="1B9A3F2C-6E4D-4B7A-9C1E-2F5D8A7C3B10">
+            UpgradeCode="A23F1752-08DB-4229-9302-7A9959C71BAD">
 
     <SummaryInformation Description="Your Company's App.WinForms Sample Installer" Manufacturer="Your Company" Keywords="Installer" />
 

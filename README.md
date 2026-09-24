@@ -1,23 +1,30 @@
 # wix-dotnet-starter
 
-Template repository for .NET 10 projects packaged with a WiX v5 MSI installer.
+Template repository for .NET 10 projects packaged with a WiX v7 MSI installer and Burn
+bootstrapper.
 
 ## Layout
 
 ```
 WixDotnetStarter.slnx
+NuGet.Config       routes WixToolset.*/wix/WixInternal.* packages to tools/wix-nuget-feed
+                    instead of nuget.org - see "Why a local WiX NuGet feed?" below
+assets/            shared icon/logo/license assets used by the installer and bundle
 src/
   App.Core/        class library - sample "Customer" model + in-memory sample data
-  App.WinForms/     WinForms app (net10.0-windows) - shows the sample data in a DataGridView
+  App.WinForms/    WinForms app (net10.0-windows) - shows the sample data in a DataGridView
 tests/
-  App.Core.Tests/  xunit tests for App.Core
+  App.Core.Tests/  MSTest tests for App.Core
 installer/
-  App.Installer/   WiX v5 MSI packaging App.WinForms (installer/App.Installer/App.Installer.wixproj)
-  App.Bundle/      WiX v5 Burn bootstrapper chaining the .NET 10 Desktop Runtime + App.Installer.msi
+  App.Actions/     managed custom actions (net48) for the MSI - see CustomActions.wxs
+  App.Installer/   WiX v7 MSI packaging App.WinForms (installer/App.Installer/App.Installer.wixproj)
+  App.Bundle/      WiX v7 Burn bootstrapper chaining the .NET 10 Desktop Runtime + App.Installer.msi
                     into one .exe (installer/App.Bundle/App.Bundle.wixproj) - see below, listed in
                     the solution but excluded from its default build (<Build Project="false" />)
 build/
   _build.csproj    Fallout (NUKE successor) build pipeline - see "Full pipeline" below
+tools/
+  wix-nuget-feed/  self-compiled WiX v7 NuGet packages - see "Why a local WiX NuGet feed?" below
 ```
 
 ## Prerequisites
@@ -97,6 +104,35 @@ configuration dropdown instead of the command line - Visual Studio and Rider bot
 up automatically for `build/_build.csproj`. Verified with `dotnet run --project build/_build.csproj
 --launch-profile Test` (and `--launch-profile "PackBundle (Release)"`, which correctly
 produced `installer/App.Bundle/bin/x64/Release/App.Bundle.exe`).
+
+## Why a local WiX NuGet feed?
+
+WiX v6+ pre-built NuGet packages (`WixToolset.Sdk`, every `WixToolset.*.wixext`) are covered by
+an [Open Source Maintenance Fee](https://opensourcemaintenancefee.org/): required if annual
+gross revenue is ≥ US$10,000. Terms:
+[`OSMFEULA.txt`](https://github.com/wixtoolset/wix/blob/v7.0.0/OSMFEULA.txt). Honor-system,
+not a license key or network check.
+
+The EULA exempts self-compiled binaries. `tools/wix-nuget-feed/` holds all 47 WiX v7.0.0
+packages built from source (https://github.com/wixtoolset/wix, tag `v7.0.0`) instead of
+downloaded from nuget.org.
+
+`NuGet.Config` at the repo root maps `WixToolset.*`, `WixInternal.*`, and `wix` package IDs to
+`tools/wix-nuget-feed/` exclusively via `packageSourceMapping` - no fallback to nuget.org for
+those IDs. Everything else (SDK packages, `coverlet.collector`, `MSTest.*`, ...) still resolves
+from nuget.org normally.
+
+Notes:
+
+- The WiX v7 EULA still needs a one-time local acceptance regardless of self-compiling - separate
+  concern from the fee. First build fails with `error WIX7015` until `wix eula accept wix7` is
+  run once (writes a marker file under `%USERPROFILE%\.wix\`, no network/payment). No `wix.exe`
+  on PATH by default - see `tools/wix-nuget-feed/README.md` for a self-compiled one, or install
+  the [WiX CLI](https://wixtoolset.org/docs/tools/net-tools/) separately.
+- To use the official nuget.org packages instead: delete `NuGet.Config` and bump the
+  `WixToolset.Sdk`/`WixToolset.*.wixext` versions in the three `.wixproj`/`.csproj` files under
+  `installer/` to whatever's current.
+- To rebuild this feed (e.g. for a newer WiX version): `tools/wix-nuget-feed/README.md`.
 
 ## Adapting this template
 

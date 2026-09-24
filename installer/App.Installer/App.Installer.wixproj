@@ -1,4 +1,4 @@
-<Project Sdk="WixToolset.Sdk/5.0.2">
+<Project Sdk="WixToolset.Sdk/7.0.0">
 
   <PropertyGroup>
     <OutputType>Package</OutputType>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

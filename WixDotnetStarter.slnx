@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="tools/HeatWave.vsix" />
+    <File Path="NuGet.Config" />
   </Folder>
   <Folder Name="/build/">
     <Project Path="build/_build.csproj">
@@ -25,5 +25,9 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/App.Core.Tests/App.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <File Path="tools/HeatWave.vsix" />
+    <File Path="tools/wix-nuget-feed/README.md" />
   </Folder>
 </Solution>

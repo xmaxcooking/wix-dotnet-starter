@@ -1,0 +1,27 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+    <Platform>x64</Platform>
+    <!-- Installers/InstallTool.wxs intentionally has no DetectCondition - see the comment there. -->
+    <SuppressSpecificWarnings>$(SuppressSpecificWarnings);1161</SuppressSpecificWarnings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Bal.wixext" />
+    <PackageReference Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\App.Installer.Package\App.Installer.Package.wixproj">
+      <Name>Installer</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+    </ProjectReference>
+
+    <ProjectReference Include="..\App.Installer.Tool\App.Installer.Tool.csproj">
+      <Name>InstallTool</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,53 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!-- Listed explicitly rather than harvested: each Component's Guid must stay stable across builds, or MSI upgrade detection breaks. -->
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="App.Client.Windows.exe" Guid="81D2DAB7-9316-4385-8279-E58423E78053">
+        <File Id="App.Client.Windows.exe" Source="$(var.App.TargetDir)App.Client.Windows.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="ApplicationProgramsFolder"
+                    Name="App.Client.Windows Sample"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Advertise="yes" />
+        </File>
+      </Component>
+
+      <Component Id="App.Client.Windows.dll" Guid="CCA869E4-EF9C-402C-9422-F43EECFE7589">
+        <File Id="App.Client.Windows.dll" Source="$(var.App.TargetDir)App.Client.Windows.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Client.Windows.runtimeconfig.json" Guid="03C22A83-9210-450B-B8A4-7581BE23241D">
+        <File Id="App.Client.Windows.runtimeconfig.json" Source="$(var.App.TargetDir)App.Client.Windows.runtimeconfig.json" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Client.Windows.deps.json" Guid="FF11A8A9-C24A-4DE9-962B-5BDBA5D1E252">
+        <File Id="App.Client.Windows.deps.json" Source="$(var.App.TargetDir)App.Client.Windows.deps.json" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Client.Controls.dll" Guid="BD5DA7DB-AC49-4CB1-860C-A38070A30981">
+        <File Id="App.Client.Controls.dll" Source="$(var.App.TargetDir)App.Client.Controls.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Domain.dll" Guid="60D337A1-C7F1-4A6E-9A31-8F0D13EBF40A">
+        <File Id="App.Domain.dll" Source="$(var.App.TargetDir)App.Domain.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Infrastructure.dll" Guid="7C6FF4E3-7A10-4C68-839F-CFADCD885968">
+        <File Id="App.Infrastructure.dll" Source="$(var.App.TargetDir)App.Infrastructure.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="App.Updates.dll" Guid="D7838FCF-0406-4029-9701-08805EDAEBFF">
+        <File Id="App.Updates.dll" Source="$(var.App.TargetDir)App.Updates.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">
+        <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\YourCompany\App.Client.Windows Sample" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>

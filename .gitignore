@@ -13,7 +13,7 @@ out/
 *.msi
 *.wixobj
 *.exe
-!installer/App.Bundle/Redist/*.exe
+!installer/App.Installer.Bundle/Redist/*.exe
 
 # Fallout build pipeline - generated/local, parameters.json is checked in
 .fallout/temp/
@@ -27,3 +27,6 @@ artifacts/
 # OS
 .DS_Store
 Thumbs.db
+
+# Serena
+.serena

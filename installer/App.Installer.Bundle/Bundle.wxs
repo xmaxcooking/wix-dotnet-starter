@@ -1,0 +1,38 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+  <!-- NEVER change UpgradeCode once shipped, or bundle upgrades will stop working. -->
+  <Bundle Name="App.Client.Windows Sample"
+          Version="1.0.0.0"
+          Manufacturer="Your Company"
+          UpgradeCode="93EC7F40-82CC-46B7-AF11-75BC480A637F"
+          IconSourceFile="$(var.ProjectDir)..\..\assets\icon.ico">
+
+    <BootstrapperApplication>
+      <!-- LicenseFile is placeholder Lorem ipsum text; replace before shipping. -->
+      <bal:WixStandardBootstrapperApplication
+        Theme="rtfLicense"
+        LicenseFile="$(var.ProjectDir)..\..\assets\License.rtf"
+        LogoFile="$(var.ProjectDir)..\..\assets\logo.png"
+        SuppressOptionsUI="yes"
+        SuppressRepair="yes" />
+    </BootstrapperApplication>
+
+    <!-- VersionNT is a Burn built-in variable; v10.0 is Windows 10 / Server 2016. -->
+    <bal:Condition Condition="VersionNT &gt;= v10.0" Message="This application requires Windows 10 or later." />
+
+    <!-- Overridable via: App.Bundle.exe /SampleBundleVariable=SomeValue -->
+    <Variable Name="SampleBundleVariable" Type="string" Value="" bal:Overridable="yes" />
+
+    <Chain>
+      <PackageGroupRef Id="DotNetDesktopRuntime" />
+
+      <!-- If App.Installer.msi fails, Burn only rolls back packages after this boundary - the .NET Desktop Runtime stays installed. -->
+      <RollbackBoundary Id="AfterPrerequisites" />
+
+      <PackageGroupRef Id="InstallTool" />
+      <PackageGroupRef Id="App" />
+    </Chain>
+
+  </Bundle>
+</Wix>

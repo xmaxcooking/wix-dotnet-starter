@@ -43,7 +43,7 @@ jobs:
           global-json-file: global.json
       - name: 'Restore: dotnet tools'
         run: dotnet tool restore
-      - name: 'Run: PublishRelease'
-        run: dotnet fallout PublishRelease
+      - name: 'Run: publishRelease'
+        run: dotnet fallout publishRelease
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

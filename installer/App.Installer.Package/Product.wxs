@@ -1,0 +1,34 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!-- NEVER change UpgradeCode once shipped, or upgrades will stop detecting the prior install. Bump Version on every release. -->
+  <Package Name="App.Client.Windows Sample"
+            Manufacturer="Your Company"
+            Version="1.0.0.0"
+            UpgradeCode="A23F1752-08DB-4229-9302-7A9959C71BAD">
+
+    <SummaryInformation Description="Your Company's App.Client.Windows Sample Installer" Manufacturer="Your Company" Keywords="Installer" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon.ico" SourceFile="$(var.ProjectDir)..\..\assets\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+
+    <Feature Id="ProductFeature" Title="App.Client.Windows Sample" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <CustomActionRef Id="ValidateSampleProperty" />
+    <CustomActionRef Id="WriteSampleMarkerFile" />
+
+    <!-- Placeholder license text (Lorem ipsum) shown on WixUI_InstallDir's License Agreement page - replace before shipping. -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)..\..\assets\License.rtf" />
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Avoids ICE43 (advertised shortcuts wanting an HKCU keypath) for our non-advertised Start Menu shortcut. -->
+    <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+
+  </Package>
+</Wix>

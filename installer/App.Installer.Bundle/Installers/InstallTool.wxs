@@ -1,0 +1,15 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <!-- Permanent="yes": a one-shot tool with no persistent footprint, nothing to uninstall. No DetectCondition, so it always runs. -->
+    <PackageGroup Id="InstallTool">
+      <ExePackage Id="InstallTool"
+                  DisplayName="App Install Tool"
+                  SourceFile="$(var.InstallTool.TargetPath)"
+                  Compressed="yes"
+                  PerMachine="yes"
+                  Permanent="yes"
+                  Vital="yes"
+                  InstallArguments="&quot;[SampleBundleVariable]&quot;" />
+    </PackageGroup>
+  </Fragment>
+</Wix>

@@ -1,0 +1,29 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Fragment>
+    <!--
+      SourceFile under Redist\ is a Microsoft redistributable released roughly monthly; refresh periodically
+      from https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe
+
+      DetectCondition below only checks that the key exists, not a minimum version - an old 10.0.0 preview
+      would count as "installed". Tighten with Result="value" against a specific version if that matters.
+    -->
+    <util:RegistrySearch Id="WindowsDesktopRuntimeSearch"
+                          Variable="WindowsDesktopRuntimeInstalled"
+                          Root="HKLM"
+                          Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App"
+                          Result="exists" />
+
+    <PackageGroup Id="DotNetDesktopRuntime">
+      <ExePackage Id="DotNetDesktopRuntime"
+                  DisplayName=".NET 10 Desktop Runtime (x64)"
+                  SourceFile="Redist\windowsdesktop-runtime-win-x64.exe"
+                  Compressed="yes"
+                  PerMachine="yes"
+                  Permanent="yes"
+                  Vital="yes"
+                  DetectCondition="WindowsDesktopRuntimeInstalled"
+                  InstallArguments="/install /quiet /norestart" />
+    </PackageGroup>
+  </Fragment>
+</Wix>

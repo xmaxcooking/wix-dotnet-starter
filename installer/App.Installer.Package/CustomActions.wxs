@@ -1,0 +1,39 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!--
+    Reference App.Installer.Actions's *.CA.dll self-hosting wrapper here, not the plain App.Installer.Actions.dll.
+
+    A CustomActionRef to any one action below (see Product.wxs) is required to pull this whole
+    Fragment into the MSI; without it the linker silently drops Fragments containing only
+    CustomAction/InstallExecuteSequence elements.
+  -->
+
+  <Fragment>
+    <Binary Id="AppActionsBinary" SourceFile="$(var.Actions.TargetDir)App.Installer.Actions.CA.dll" />
+
+    <!-- Immediate: runs in-process with the installer engine, so it can read/write session properties directly. -->
+    <CustomAction Id="ValidateSampleProperty"
+                  BinaryRef="AppActionsBinary"
+                  DllEntry="ValidateSampleProperty"
+                  Execute="immediate"
+                  Return="check" />
+
+    <!-- Deferred: runs elevated, with no session access - only CustomActionData captured by the property-setting action below. -->
+    <CustomAction Id="WriteSampleMarkerFile_SetProperty"
+                  Property="WriteSampleMarkerFile"
+                  Value="INSTALLFOLDER=[INSTALLFOLDER]" />
+
+    <CustomAction Id="WriteSampleMarkerFile"
+                  BinaryRef="AppActionsBinary"
+                  DllEntry="WriteSampleMarkerFile"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="check" />
+
+    <InstallExecuteSequence>
+      <Custom Action="ValidateSampleProperty" After="AppSearch" />
+      <Custom Action="WriteSampleMarkerFile_SetProperty" Before="WriteSampleMarkerFile" />
+      <Custom Action="WriteSampleMarkerFile" After="InstallFiles" />
+    </InstallExecuteSequence>
+  </Fragment>
+</Wix>

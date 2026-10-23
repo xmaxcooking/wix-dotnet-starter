@@ -1,0 +1,25 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\App.Client.Windows\App.Client.Windows.csproj">
+      <Name>App</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+
+    <ProjectReference Include="..\App.Installer.Actions\App.Installer.Actions.csproj">
+      <Name>Actions</Name>
+      <DoNotHarvest>True</DoNotHarvest>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" />
+  </ItemGroup>
+
+</Project>

@@ -1,141 +1,136 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using App.Updates.Feed;
 using Fallout.Common;
 using Fallout.Common.CI.GitHubActions;
-using Fallout.Common.Execution;
 using Fallout.Common.Git;
 using Fallout.Common.IO;
-using Fallout.Common.Tooling;
 using Fallout.Common.Tools.DotNet;
 using Fallout.Common.Tools.GitHub;
 using Fallout.Common.Utilities.Collections;
 using Fallout.Solutions;
 using Octokit;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using static Fallout.Common.EnvironmentInfo;
 using static Fallout.Common.Tools.DotNet.DotNetTasks;
 
-// Showcases the full pipeline: Clean -> Restore -> Compile -> Test -> PackBundle.
-// `Compile` builds everything WixDotnetStarter.slnx references by default - App.Core,
-// App.WinForms, App.Core.Tests and App.Installer.msi (App.Bundle is excluded from the
-// solution's default build via <Build Project="false" />, see the .slnx). `PackBundle`
-// builds it explicitly, needing the .NET Desktop Runtime installer downloaded first -
-// see installer/App.Bundle/Redist/README.md - so it's not part of the default target.
-//
-// [GitHubActions] generates .github/workflows/release.yml from the attribute below - edit
-// here and run the build once (locally, or let CI's first run rewrite it) to regenerate;
-// never hand-edit the .yml. windows-latest because the whole pipeline (WinForms, WiX,
-// MSI/Burn) is Windows-only.
+// [GitHubActions] generates .github/workflows/release.yml from the attribute below; never hand-edit the .yml.
 [GitHubActions(
     "release",
     GitHubActionsImage.WindowsLatest,
     OnPushBranches = new[] { "master" },
-    InvokedTargets = new[] { nameof(PublishRelease) },
+    InvokedTargets = new[] { nameof(publishRelease) },
     EnableGitHubToken = true,
     WritePermissions = new[] { GitHubActionsPermissions.Contents },
     PublishArtifacts = false)]
-class Build : FalloutBuild
+internal class Build : FalloutBuild
 {
-    public static int Main() => Execute<Build>(x => x.Test);
+    public static int Main() => Execute<Build>(x => x.test);
 
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)", Name = "Configuration")]
+    private readonly Configuration _configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Solution] readonly Solution Solution;
-    [GitRepository] readonly GitRepository GitRepository;
+    [Solution(Name = "Solution")] private readonly Solution _solution;
+    [GitRepository] private readonly GitRepository _gitRepository;
 
-    [Parameter("GitHub token used to create the release - set via GITHUB_TOKEN, provided automatically in Actions")]
+    [Parameter("GitHub token used to create the release - set via GITHUB_TOKEN, provided automatically in Actions", Name = "GitHubToken")]
     [Secret]
-    readonly string GitHubToken = GitHubActions.Instance?.Token;
+    private readonly string _gitHubToken = GitHubActions.Instance?.Token;
 
-    AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
-    AbsolutePath BundleProject => RootDirectory / "installer" / "App.Bundle" / "App.Bundle.wixproj";
+    private AbsolutePath artifactsDirectory => RootDirectory / "artifacts";
+    private AbsolutePath bundleProject => RootDirectory / "installer" / "App.Installer.Bundle" / "App.Installer.Bundle.wixproj";
 
-    Target Clean => _ => _
-        .Before(Restore)
+    private string releaseTag => BuildTag.Format(GitHubActions.Instance?.RunNumber ?? 0);
+
+    private string gitHubOwner => _gitRepository.GetGitHubOwner();
+    private string gitHubRepoName => _gitRepository.GetGitHubName();
+
+    private Target clean => _ => _
+        .Before(restore)
         .Executes(() =>
         {
-            RootDirectory.GlobDirectories("src/**/bin", "src/**/obj", "tests/**/bin", "tests/**/obj",
-                    "installer/**/bin", "installer/**/obj")
-                .ForEach(x => x.DeleteDirectory());
-            ArtifactsDirectory.CreateOrCleanDirectory();
+            RootDirectory.GlobDirectories("src/**/bin", "src/**/obj", "tests/**/bin", "tests/**/obj", "installer/**/bin", "installer/**/obj").ForEach(x => x.DeleteDirectory());
+            artifactsDirectory.CreateOrCleanDirectory();
         });
 
-    Target Restore => _ => _
+    private Target restore => _ => _
         .Executes(() => DotNetRestore(s => s
-            .SetProjectFile(Solution)));
+            .SetProjectFile(_solution)));
 
-    // WiX v7's Open Source Maintenance Fee EULA gate (error WIX7015) needs a one-time
-    // per-machine acceptance marker before any project referencing WixToolset.Sdk will
-    // compile - see tools/wix-nuget-feed/README.md. A fresh clone or a CI runner (a brand
-    // new VM every run) never has that marker, so this can't be a one-off a developer runs
-    // locally once; it has to run every time, right after Restore puts WixToolset.Sdk's
-    // wix.exe in the NuGet cache and before Compile needs it. Cheap when already accepted -
-    // wix.exe itself no-ops on a second acceptance.
-    Target AcceptWixEula => _ => _
-        .DependsOn(Restore)
+    private Target acceptWixEula => _ => _
+        .DependsOn(restore)
         .Executes(() =>
         {
             var nugetPackages = GetVariable("NUGET_PACKAGES")
-                ?? Path.Combine(GetVariable("USERPROFILE") ?? GetVariable("HOME")!, ".nuget", "packages");
+                ?? Path.Combine(GetVariable("USERPROFILE") ?? GetVariable("HOME"), ".nuget", "packages");
 
             var wixExe = Directory.GetFiles(nugetPackages, "wix.exe", SearchOption.AllDirectories)
                 .FirstOrDefault(x => x.Contains("wixtoolset.sdk", StringComparison.OrdinalIgnoreCase));
+
             if (wixExe == null)
+            {
                 throw new InvalidOperationException(
                     "wix.exe not found under the NuGet packages folder after restore - was WixToolset.Sdk restored?");
+            }
 
-            using var process = Process.Start(new ProcessStartInfo(wixExe, "eula accept wix7") { UseShellExecute = false });
-            process!.WaitForExit();
-            if (process.ExitCode != 0)
-                throw new InvalidOperationException("'wix eula accept wix7' failed");
+            using (var process = Process.Start(new ProcessStartInfo(wixExe, "eula accept wix7") { UseShellExecute = false }))
+            {
+                process.WaitForExit();
+                if (process.ExitCode != 0)
+                {
+                    throw new InvalidOperationException("'wix eula accept wix7' failed");
+                }
+            }
         });
 
-    Target Compile => _ => _
-        .DependsOn(AcceptWixEula)
+    private Target verifyFormat => _ => _
+        .DependsOn(restore)
+        .Executes(() => DotNetFormat(s => s
+            .SetProject(_solution)
+            .EnableVerifyNoChanges()));
+
+    private Target compile => _ => _
+        .DependsOn(acceptWixEula, verifyFormat)
         .Executes(() => DotNetBuild(s => s
-            .SetProjectFile(Solution)
-            .SetConfiguration(Configuration)
+            .SetProjectFile(_solution)
+            .SetConfiguration(_configuration)
+            .SetProperty("InformationalVersion", releaseTag)
+            .SetProperty("WixDotnetStarterGitHubOwner", gitHubOwner)
+            .SetProperty("WixDotnetStarterGitHubRepo", gitHubRepoName)
             .EnableNoRestore()));
 
-    Target Test => _ => _
-        .DependsOn(Compile)
+    private Target test => _ => _
+        .DependsOn(compile)
         .Executes(() => DotNetTest(s => s
-            .SetProjectFile(Solution)
-            .SetConfiguration(Configuration)
+            .SetProjectFile(_solution)
+            .SetConfiguration(_configuration)
             .EnableNoBuild()));
 
-    Target PackBundle => _ => _
-        .DependsOn(Compile)
+    private Target packBundle => _ => _
+        .DependsOn(compile)
         .Executes(() =>
         {
             DotNetBuild(s => s
-                .SetProjectFile(BundleProject)
-                .SetConfiguration(Configuration));
+                .SetProjectFile(bundleProject)
+                .SetConfiguration(_configuration));
 
-            ArtifactsDirectory.CreateOrCleanDirectory();
-            BundleProject.Parent.GlobFiles($"bin/x64/{Configuration}/*.exe")
-                .ForEach(x => x.CopyToDirectory(ArtifactsDirectory, ExistsPolicy.FileOverwriteIfNewer));
+            artifactsDirectory.CreateOrCleanDirectory();
+            bundleProject.Parent.GlobFiles($"bin/x64/{_configuration}/*.exe")
+                .ForEach(x => x.CopyToDirectory(artifactsDirectory, ExistsPolicy.FileOverwriteIfNewer));
         });
 
-    // Runs on every push to master (see the [GitHubActions] attribute above): creates a GitHub
-    // Release tagged by the CI run number - always unique, never collides across re-runs - and
-    // uploads App.Bundle.exe to it. Marked Prerelease since it's an unattended per-push build,
-    // not a curated version; flip that (and the tag scheme) if you want deliberate releases
-    // instead.
-    Target PublishRelease => _ => _
-        .DependsOn(PackBundle)
-        .Requires(() => GitHubToken)
+    private Target publishRelease => _ => _
+        .DependsOn(packBundle)
+        .Requires(() => _gitHubToken)
         .Executes(async () =>
         {
-            GitHubTasks.GitHubClient.Credentials = new Credentials(GitHubToken);
+            GitHubTasks.GitHubClient.Credentials = new Credentials(_gitHubToken);
 
-            var tag = $"build-{GitHubActions.Instance.RunNumber}";
+            var tag = releaseTag;
             var release = await GitHubTasks.GitHubClient.Repository.Release.Create(
-                GitRepository.GetGitHubOwner(),
-                GitRepository.GetGitHubName(),
+                gitHubOwner,
+                gitHubRepoName,
                 new NewRelease(tag)
                 {
                     Name = tag,
@@ -144,15 +139,20 @@ class Build : FalloutBuild
                     Body = $"Automated build from commit {GitHubActions.Instance.Sha}."
                 });
 
-            foreach (var file in ArtifactsDirectory.GlobFiles("*.exe"))
+            foreach (var file in artifactsDirectory.GlobFiles("*.exe"))
             {
-                await using var stream = File.OpenRead(file);
-                await GitHubTasks.GitHubClient.Repository.Release.UploadAsset(release, new ReleaseAssetUpload
+                await using (var stream = File.OpenRead(file))
                 {
-                    FileName = file.Name,
-                    ContentType = "application/octet-stream",
-                    RawData = stream
-                });
+                    await GitHubTasks.GitHubClient.Repository.Release.UploadAsset(
+                        release,
+                        new ReleaseAssetUpload
+                        {
+                            FileName = file.Name,
+                            ContentType = "application/octet-stream",
+                            RawData = stream
+                        }
+                    );
+                }
             }
         });
 }

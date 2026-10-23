@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows Installer hosts custom action DLLs via the mscoree CLR shim, which only loads .NET Framework assemblies; must stay net48. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>x64</Platforms>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Dtf.WindowsInstaller" />
+    <PackageReference Include="WixToolset.Dtf.CustomAction" />
+  </ItemGroup>
+
+</Project>

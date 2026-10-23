@@ -22,6 +22,9 @@
            these stay stable across rebuilds the same way the Guids above are pinned by hand. -->
       <Files Include="$(var.App.TargetDir)*" Directory="INSTALLFOLDER">
         <Exclude Files="$(var.App.TargetDir)App.Client.Windows.exe" />
+        <!-- Debug symbols and XML doc comments are dev-time-only; the running app never reads them. -->
+        <Exclude Files="$(var.App.TargetDir)*.pdb" />
+        <Exclude Files="$(var.App.TargetDir)*.xml" />
       </Files>
 
       <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">

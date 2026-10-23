@@ -91,7 +91,7 @@ internal class Build : FalloutBuild
         });
 
     private Target compile => _ => _
-        .DependsOn(acceptWixEula, verifyFormat)
+        .DependsOn(verifyFormat)
         .Executes(() => DotNetBuild(s => s
             .SetProjectFile(_solution)
             .SetConfiguration(_configuration)
@@ -101,7 +101,7 @@ internal class Build : FalloutBuild
             .EnableNoRestore()));
 
     private Target verifyFormat => _ => _
-        .DependsOn(restore)
+        .DependsOn(acceptWixEula)
         .Executes(() =>
         {
             DotNetBuild(s => s.SetProjectFile(_solution).SetConfiguration(Configuration.Debug));

@@ -29,10 +29,6 @@
         <!-- Debug symbols and XML doc comments are dev-time-only; the running app never reads them. -->
         <Exclude Files="$(var.App.TargetDir)*.pdb" />
         <Exclude Files="$(var.App.TargetDir)*.xml" />
-        <!-- A duplicate nested copy of nearly this whole publish output, produced by
-             WindowsAppSDKSelfContained's RID-specific sub-build; everything in it already exists
-             (or has an equivalent) directly under TargetDir, so shipping it too would just double the payload. -->
-        <Exclude Files="$(var.App.TargetDir)win-x64\**" />
       </Files>
 
       <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">

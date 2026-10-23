@@ -86,9 +86,15 @@ internal class Build : FalloutBuild
 
     private Target verifyFormat => _ => _
         .DependsOn(restore)
-        .Executes(() => DotNetFormat(s => s
-            .SetProject(_solution)
-            .EnableVerifyNoChanges()));
+        .Executes(() =>
+            // dotnet format doesn't honor the .slnx solution-to-project platform mapping, so projects
+            // restricted to a single non-default platform (Platforms=x64) get evaluated without it and
+            // their XAML-generated code never materializes. Formatting each project file directly instead
+            // resolves the platform correctly.
+            RootDirectory.GlobFiles("src/**/*.csproj", "tests/**/*.csproj", "installer/**/*.csproj", "build/**/*.csproj")
+                .ForEach(project => DotNetFormat(s => s
+                    .SetProject(project)
+                    .EnableVerifyNoChanges())));
 
     private Target compile => _ => _
         .DependsOn(acceptWixEula, verifyFormat)

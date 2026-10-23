@@ -320,3 +320,10 @@ dotnet_diagnostic.CA1873.severity = none
 
 [*.Designer.cs]
 generated_code = true
+
+# WinUI's XAML markup compiler wires up x:Name fields and Click="..." handlers entirely at runtime
+# (via XamlTypeInfo/LoadComponent), never through generated C#, so Roslyn can't see the reference and
+# flags event handlers as unused.
+[*.xaml.cs]
+dotnet_diagnostic.IDE0051.severity = none
+dotnet_diagnostic.IDE0060.severity = none

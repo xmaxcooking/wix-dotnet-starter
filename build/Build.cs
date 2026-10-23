@@ -119,7 +119,8 @@ internal class Build : FalloutBuild
         {
             DotNetBuild(s => s
                 .SetProjectFile(bundleProject)
-                .SetConfiguration(_configuration));
+                .SetConfiguration(_configuration)
+                .SetProperty("Platform", "x64"));
 
             artifactsDirectory.CreateOrCleanDirectory();
             bundleProject.Parent.GlobFiles($"bin/x64/{_configuration}/*.exe")

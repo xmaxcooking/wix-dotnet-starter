@@ -20,11 +20,19 @@
            which previously missed Microsoft.WindowsAppRuntime.dll and left the app unable to start.
            WiX's Files harvester computes each Component's Guid deterministically from its path, so
            these stay stable across rebuilds the same way the Guids above are pinned by hand. -->
-      <Files Include="$(var.App.TargetDir)*" Directory="INSTALLFOLDER">
+      <!-- Must recurse (**, not *): the non-recursive pattern silently skipped runtimes\win-x64\native\
+           (holds the native Microsoft.WindowsAppRuntime.Bootstrap.dll - without it WinUI's native
+           composition layer crashes with 0xc000027b the first time it opens a flyout/popup, e.g. the
+           File menu) and every per-culture satellite resource folder (*.mui files for Microsoft.UI.Xaml). -->
+      <Files Include="$(var.App.TargetDir)**" Directory="INSTALLFOLDER">
         <Exclude Files="$(var.App.TargetDir)App.Client.Windows.exe" />
         <!-- Debug symbols and XML doc comments are dev-time-only; the running app never reads them. -->
         <Exclude Files="$(var.App.TargetDir)*.pdb" />
         <Exclude Files="$(var.App.TargetDir)*.xml" />
+        <!-- A duplicate nested copy of nearly this whole publish output, produced by
+             WindowsAppSDKSelfContained's RID-specific sub-build; everything in it already exists
+             (or has an equivalent) directly under TargetDir, so shipping it too would just double the payload. -->
+        <Exclude Files="$(var.App.TargetDir)win-x64\**" />
       </Files>
 
       <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">

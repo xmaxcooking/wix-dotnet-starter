@@ -10,12 +10,14 @@
 
     <BootstrapperApplication>
       <!-- LicenseFile is placeholder Lorem ipsum text; replace before shipping. -->
+      <!-- SuppressRepair left off on purpose: when Detect finds the bundle already installed,
+           WixStdBA needs it to offer Repair/Uninstall (and Update, automatically, if a newer
+           version is being run) instead of silently reinstalling over itself. -->
       <bal:WixStandardBootstrapperApplication
         Theme="rtfLicense"
         LicenseFile="$(var.ProjectDir)..\..\assets\License.rtf"
         LogoFile="$(var.ProjectDir)..\..\assets\logo.png"
-        SuppressOptionsUI="yes"
-        SuppressRepair="yes" />
+        SuppressOptionsUI="yes" />
     </BootstrapperApplication>
 
     <!-- VersionNT is a Burn built-in variable; v10.0 is Windows 10 / Server 2016. -->

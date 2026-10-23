@@ -4,7 +4,7 @@
     <PackageGroup Id="InstallTool">
       <ExePackage Id="InstallTool"
                   DisplayName="App Install Tool"
-                  SourceFile="$(var.InstallTool.TargetPath)"
+                  SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).exe"
                   Compressed="yes"
                   PerMachine="yes"
                   Permanent="yes"

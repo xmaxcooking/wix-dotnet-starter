@@ -4,7 +4,7 @@
   <!-- NEVER change UpgradeCode once shipped, or upgrades will stop detecting the prior install. Bump Version on every release. -->
   <Package Name="App.Client.Windows Sample"
             Manufacturer="Your Company"
-            Version="1.0.0.0"
+            Version="$(var.WixDotnetStarterPackageVersion)"
             UpgradeCode="A23F1752-08DB-4229-9302-7A9959C71BAD">
 
     <SummaryInformation Description="Your Company's App.Client.Windows Sample Installer" Manufacturer="Your Company" Keywords="Installer" />

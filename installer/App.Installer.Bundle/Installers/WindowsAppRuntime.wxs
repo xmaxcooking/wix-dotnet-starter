@@ -1,0 +1,38 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <!--
+      Unlike DotNetDesktopRuntime's redistributable, this one is NOT checked in under Redist\ - at
+      ~114 MB (it carries MSIX packages for a whole WinUI 3 runtime) it would nearly triple the repo
+      and the published bundle's size for no benefit. ExePackagePayload below describes it entirely
+      by Hash/Size instead of a local SourceFile, so it's fetched from Microsoft's own CDN only if
+      Burn actually runs this package during install - nothing to download or publish ourselves.
+
+      Refresh Hash/Size/Version/DownloadUrl together whenever App.Client.Windows's
+      Microsoft.WindowsAppSDK reference (Directory.Packages.props) changes version - get the new
+      values from https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads and
+      `(Get-FileHash -Algorithm SHA512 path\to\windowsappruntimeinstall-x64.exe).Hash.ToLower()`.
+
+      No DetectCondition: detecting an installed Windows App SDK runtime properly means checking
+      several MSIX package families (framework/main/singleton/DDLM), which Burn can't do with a
+      simple registry search. Not worth it - the installer already no-ops when everything it would
+      deploy is already present (Microsoft's own deployment guide states this), so it's safe to
+      always run, the same as InstallTool below.
+    -->
+    <PackageGroup Id="WindowsAppRuntime">
+      <ExePackage Id="WindowsAppRuntime"
+                  DisplayName="Windows App SDK Runtime (x64)"
+                  PerMachine="yes"
+                  Permanent="yes"
+                  Vital="yes"
+                  InstallArguments="--quiet">
+        <ExePackagePayload Id="WindowsAppRuntimePayload"
+                            Name="windowsappruntimeinstall-x64.exe"
+                            DownloadUrl="https://aka.ms/windowsappsdk/2.5/2.5.1/windowsappruntimeinstall-x64.exe"
+                            Hash="f27c66b603d97180e28c9508b48f932ac1552a5aef6c3310cade7cebf693baf0df9bfbc40115db8a5a3e67407c2e60814ac4712ac3613d3290d9e07d0361e222"
+                            Size="120199480"
+                            Version="2.5.1.0"
+                            ProductName="Windows App SDK Runtime" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

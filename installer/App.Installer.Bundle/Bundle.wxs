@@ -28,8 +28,9 @@
 
     <Chain>
       <PackageGroupRef Id="DotNetDesktopRuntime" />
+      <PackageGroupRef Id="WindowsAppRuntime" />
 
-      <!-- If App.Installer.msi fails, Burn only rolls back packages after this boundary - the .NET Desktop Runtime stays installed. -->
+      <!-- If App.Installer.msi fails, Burn only rolls back packages after this boundary - the .NET Desktop Runtime and Windows App SDK Runtime stay installed. -->
       <RollbackBoundary Id="AfterPrerequisites" />
 
       <PackageGroupRef Id="InstallTool" />

@@ -15,7 +15,11 @@
     <Nullable>enable</Nullable>
     <UseWinUI>true</UseWinUI>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <!-- Framework-dependent (the default - no WindowsAppSDKSelfContained): the installer chains the
+         Windows App SDK Runtime redistributable instead of bundling the whole runtime into the app.
+         WindowsPackageType=None is what makes this work unpackaged - it's the "simplest way to load
+         the Windows App SDK runtime" per Microsoft's own unpackaged-deployment guide; no bootstrapper
+         code needed. -->
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>false</EnableMsixTooling>
     <ImplicitUsings>enable</ImplicitUsings>

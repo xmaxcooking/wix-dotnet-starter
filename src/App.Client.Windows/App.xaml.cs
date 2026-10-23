@@ -4,26 +4,35 @@ using App.Infrastructure;
 using App.Updates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.UI.Xaml;
 
 namespace App.Client.Windows;
 
-internal static class Program
+public partial class App : Application
 {
-    [STAThread]
-    private static async Task Main()
-    {
-        ApplicationConfiguration.Initialize();
+    private MainWindow? _mainWindow;
 
+    public App()
+    {
+        InitializeComponent();
+    }
+
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    {
         var services = new ServiceCollection();
         configureServices(services);
-        using var provider = services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
         if (await provider.GetRequiredService<UpdateCheck>().RunIfDueAsync())
         {
+            provider.Dispose();
+            Exit();
             return;
         }
 
-        Application.Run(provider.GetRequiredService<MainForm>());
+        _mainWindow = provider.GetRequiredService<MainWindow>();
+        _mainWindow.Closed += (_, _) => provider.Dispose();
+        _mainWindow.Activate();
     }
 
     private static void configureServices(IServiceCollection services)

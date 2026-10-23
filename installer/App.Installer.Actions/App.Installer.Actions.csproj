@@ -14,4 +14,11 @@
     <PackageReference Include="WixToolset.Dtf.CustomAction" />
   </ItemGroup>
 
+  <!-- Packed into the .CA.dll and extracted next to it at runtime. Without it the native SFXCA host
+       has no supportedRuntime hint and loads the legacy CLR 2.0 shim, which can't load this net48
+       assembly - throws System.BadImageFormatException. -->
+  <ItemGroup>
+    <Content Include="CustomAction.config" />
+  </ItemGroup>
+
 </Project>

@@ -21,11 +21,25 @@
 
     <CustomActionRef Id="ValidateSampleProperty" />
     <CustomActionRef Id="WriteSampleMarkerFile" />
+    <CustomActionRef Id="CreateDesktopShortcut" />
 
     <!-- Placeholder license text (Lorem ipsum) shown on WixUI_InstallDir's License Agreement page - replace before shipping. -->
     <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)..\..\assets\License.rtf" />
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Unchecked by default (no Property default="1"): shows a checkbox on the stock Exit dialog and
+         runs CreateDesktopShortcut iff it's checked on a fresh install (not a repair/maintenance run,
+         where Installed is already set). -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Create a desktop shortcut" />
+    <UI>
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="CreateDesktopShortcut"
+               Order="1"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
 
     <!-- Avoids ICE43 (advertised shortcuts wanting an HKCU keypath) for our non-advertised Start Menu shortcut. -->
     <Property Id="DISABLEADVTSHORTCUTS" Value="1" />

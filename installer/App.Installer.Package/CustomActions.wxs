@@ -18,6 +18,16 @@
                   Execute="immediate"
                   Return="check" />
 
+    <!-- Immediate, and NOT in InstallExecuteSequence below: the install transaction (and this exe's
+         KeyPath file) is already finished by the time ExitDialog's checkbox exists for the user to
+         check. Product.wxs publishes this straight off the Finish button instead. Return="ignore" so
+         a shortcut-creation hiccup can't make an otherwise-successful install look like it failed. -->
+    <CustomAction Id="CreateDesktopShortcut"
+                  BinaryRef="AppActionsBinary"
+                  DllEntry="CreateDesktopShortcut"
+                  Execute="immediate"
+                  Return="ignore" />
+
     <!-- Deferred: runs elevated, with no session access - only CustomActionData captured by the property-setting action below. -->
     <CustomAction Id="WriteSampleMarkerFile_SetProperty"
                   Property="WriteSampleMarkerFile"

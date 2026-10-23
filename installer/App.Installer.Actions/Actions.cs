@@ -22,6 +22,25 @@ public static class Actions
     }
 
     [CustomAction]
+    public static ActionResult CreateDesktopShortcut(Session session)
+    {
+        return invoke(session, () =>
+        {
+            var installFolder = session["INSTALLFOLDER"];
+            var targetPath = System.IO.Path.Combine(installFolder, "App.Client.Windows.exe");
+            var desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
+            var shortcutPath = System.IO.Path.Combine(desktopFolder, "App.Client.Windows Sample.lnk");
+
+            var shellLink = (IShellLinkW)new ShellLinkCoClass();
+            shellLink.SetPath(targetPath);
+            shellLink.SetWorkingDirectory(installFolder);
+
+            var persistFile = (System.Runtime.InteropServices.ComTypes.IPersistFile)shellLink;
+            persistFile.Save(shortcutPath, true);
+        });
+    }
+
+    [CustomAction]
     public static ActionResult WriteSampleMarkerFile(Session session)
     {
         return invoke(session, () =>

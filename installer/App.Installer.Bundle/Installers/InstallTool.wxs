@@ -9,7 +9,12 @@
                   PerMachine="yes"
                   Permanent="yes"
                   Vital="yes"
-                  InstallArguments="&quot;[SampleBundleVariable]&quot;" />
+                  InstallArguments="&quot;[SampleBundleVariable]&quot;">
+        <!-- The apphost exe above is just a native stub; it needs these siblings in the same folder to find and run the managed app. -->
+        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).dll" />
+        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).deps.json" />
+        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).runtimeconfig.json" />
+      </ExePackage>
     </PackageGroup>
   </Fragment>
 </Wix>

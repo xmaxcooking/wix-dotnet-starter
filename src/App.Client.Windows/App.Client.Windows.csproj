@@ -11,15 +11,11 @@
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <Platforms>x64</Platforms>
+    <Platform>x64</Platform>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
     <UseWinUI>true</UseWinUI>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- Framework-dependent (the default - no WindowsAppSDKSelfContained): the installer chains the
-         Windows App SDK Runtime redistributable instead of bundling the whole runtime into the app.
-         WindowsPackageType=None is what makes this work unpackaged - it's the "simplest way to load
-         the Windows App SDK runtime" per Microsoft's own unpackaged-deployment guide; no bootstrapper
-         code needed. -->
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>false</EnableMsixTooling>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -27,9 +23,6 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
-  <!-- Defaults below are the fallback for a plain `dotnet build` outside the Fallout pipeline; build/Build.cs overrides them with the
-       git-derived owner/repo (via [GitRepository]) for every real build. Key names must match GitHubOwnerMetadataKey/GitHubRepoMetadataKey
-       in App.Updates/ServiceCollectionExtensions.cs - can't share a literal across XML and C#. -->
   <PropertyGroup>
     <WixDotnetStarterGitHubOwner Condition=" '$(WixDotnetStarterGitHubOwner)' == '' ">xmaxcooking</WixDotnetStarterGitHubOwner>
     <WixDotnetStarterGitHubRepo Condition=" '$(WixDotnetStarterGitHubRepo)' == '' ">wix-dotnet-starter</WixDotnetStarterGitHubRepo>

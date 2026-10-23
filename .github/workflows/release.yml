@@ -24,6 +24,9 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release
+
 jobs:
   windows-latest:
     name: windows-latest

@@ -34,7 +34,6 @@ public sealed class UpdateCheck
         _logger = logger;
     }
 
-    /// <summary>Returns true if an update was launched; the caller should exit without showing the main window.</summary>
     public async Task<bool> RunIfDueAsync()
     {
         try

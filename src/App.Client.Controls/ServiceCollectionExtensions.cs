@@ -14,7 +14,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Registers a window as transient, plus a Func&lt;TWindow&gt; factory so a longer-lived owner can create a fresh instance on demand.</summary>
     private static IServiceCollection addWindowFactory<TWindow>(this IServiceCollection services) where TWindow : Window
     {
         services.AddTransient<TWindow>();

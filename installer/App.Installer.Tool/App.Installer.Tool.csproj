@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Runs as a Burn ExePackage, not an MSI custom action, so it can target modern .NET; msiexec's custom action host only understands .NET Framework. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Platforms>x64</Platforms>
+    <Platform>x64</Platform>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

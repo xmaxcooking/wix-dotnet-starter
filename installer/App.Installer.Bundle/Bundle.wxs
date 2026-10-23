@@ -1,7 +1,6 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
 
-  <!-- NEVER change UpgradeCode once shipped, or bundle upgrades will stop working. -->
   <Bundle Name="App.Client.Windows Sample"
           Version="$(var.WixDotnetStarterPackageVersion)"
           Manufacturer="Your Company"
@@ -9,10 +8,6 @@
           IconSourceFile="$(var.ProjectDir)..\..\assets\icon.ico">
 
     <BootstrapperApplication>
-      <!-- LicenseFile is placeholder Lorem ipsum text; replace before shipping. -->
-      <!-- SuppressRepair left off on purpose: when Detect finds the bundle already installed,
-           WixStdBA needs it to offer Repair/Uninstall (and Update, automatically, if a newer
-           version is being run) instead of silently reinstalling over itself. -->
       <bal:WixStandardBootstrapperApplication
         Theme="rtfLicense"
         LicenseFile="$(var.ProjectDir)..\..\assets\License.rtf"
@@ -20,17 +15,14 @@
         SuppressOptionsUI="yes" />
     </BootstrapperApplication>
 
-    <!-- VersionNT is a Burn built-in variable; v10.0 is Windows 10 / Server 2016. -->
     <bal:Condition Condition="VersionNT &gt;= v10.0" Message="This application requires Windows 10 or later." />
 
-    <!-- Overridable via: App.Bundle.exe /SampleBundleVariable=SomeValue -->
     <Variable Name="SampleBundleVariable" Type="string" Value="" bal:Overridable="yes" />
 
     <Chain>
       <PackageGroupRef Id="DotNetDesktopRuntime" />
       <PackageGroupRef Id="WindowsAppRuntime" />
 
-      <!-- If App.Installer.msi fails, Burn only rolls back packages after this boundary - the .NET Desktop Runtime and Windows App SDK Runtime stay installed. -->
       <RollbackBoundary Id="AfterPrerequisites" />
 
       <PackageGroupRef Id="InstallTool" />

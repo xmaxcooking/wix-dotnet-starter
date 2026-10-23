@@ -1,34 +1,20 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
-  <!--
-    Reference App.Installer.Actions's *.CA.dll self-hosting wrapper here, not the plain App.Installer.Actions.dll.
-
-    A CustomActionRef to any one action below (see Product.wxs) is required to pull this whole
-    Fragment into the MSI; without it the linker silently drops Fragments containing only
-    CustomAction/InstallExecuteSequence elements.
-  -->
-
   <Fragment>
     <Binary Id="AppActionsBinary" SourceFile="$(var.Actions.TargetDir)App.Installer.Actions.CA.dll" />
 
-    <!-- Immediate: runs in-process with the installer engine, so it can read/write session properties directly. -->
     <CustomAction Id="ValidateSampleProperty"
                   BinaryRef="AppActionsBinary"
                   DllEntry="ValidateSampleProperty"
                   Execute="immediate"
                   Return="check" />
 
-    <!-- Immediate, and NOT in InstallExecuteSequence below: the install transaction (and this exe's
-         KeyPath file) is already finished by the time ExitDialog's checkbox exists for the user to
-         check. Product.wxs publishes this straight off the Finish button instead. Return="ignore" so
-         a shortcut-creation hiccup can't make an otherwise-successful install look like it failed. -->
     <CustomAction Id="CreateDesktopShortcut"
                   BinaryRef="AppActionsBinary"
                   DllEntry="CreateDesktopShortcut"
                   Execute="immediate"
                   Return="ignore" />
 
-    <!-- Deferred: runs elevated, with no session access - only CustomActionData captured by the property-setting action below. -->
     <CustomAction Id="WriteSampleMarkerFile_SetProperty"
                   Property="WriteSampleMarkerFile"
                   Value="INSTALLFOLDER=[INSTALLFOLDER]" />

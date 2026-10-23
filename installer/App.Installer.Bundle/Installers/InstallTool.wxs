@@ -1,6 +1,5 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
-    <!-- Permanent="yes": a one-shot tool with no persistent footprint, nothing to uninstall. No DetectCondition, so it always runs. -->
     <PackageGroup Id="InstallTool">
       <ExePackage Id="InstallTool"
                   DisplayName="App Install Tool"
@@ -10,10 +9,6 @@
                   Permanent="yes"
                   Vital="yes"
                   InstallArguments="&quot;[SampleBundleVariable]&quot;">
-        <!-- The apphost exe above is just a native stub; it needs the managed dll, its dependency
-             assemblies (e.g. App.Infrastructure.dll), deps.json and runtimeconfig.json alongside it
-             to find and run the app. Harvest everything else dotnet build produced instead of listing
-             each dependency by hand - that list changes as App.Installer.Tool's references change. -->
         <Payloads Include="$(var.InstallTool.TargetDir)*">
           <Exclude Files="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).exe" />
           <Exclude Files="$(var.InstallTool.TargetDir)*.pdb" />

@@ -63,8 +63,6 @@ public sealed class GitHubReleaseUpdateFeed : IUpdateFeed
         }
     }
 
-    // Stable: the API returns the single latest release directly. Beta: the API returns an array
-    // (newest first, prereleases included), since GitHub's own "/releases/latest" skips those.
     private static JsonElement? selectRelease(JsonElement root, UpdateChannel channel)
     {
         if (channel == UpdateChannel.Stable)

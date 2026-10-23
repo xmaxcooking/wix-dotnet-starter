@@ -2,11 +2,6 @@ using System.Runtime.InteropServices;
 
 namespace App.Client.Controls;
 
-/// <summary>
-/// WinUI 3 has no built-in Window-to-Window modality. This reproduces what WinForms' own Form.ShowDialog
-/// does internally: give the dialog a real owner (GWLP_HWNDPARENT) so it stays grouped with it in Alt-Tab
-/// and minimizes/restores with it, then disable the owner's hwnd for as long as the dialog is shown.
-/// </summary>
 internal static partial class NativeMethods
 {
     private const int GwlpHwndParent = -8;

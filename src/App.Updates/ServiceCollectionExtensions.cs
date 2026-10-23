@@ -11,8 +11,6 @@ namespace App.Updates;
 
 public static class ServiceCollectionExtensions
 {
-    // Key names must match the <AssemblyMetadata> items in App.Client.Windows.csproj - can't share a literal across XML and C#.
-    // No fallback values here: the csproj's MSBuild property defaults (and Build.cs's git-derived overrides) are the single source of truth.
     private const string GitHubOwnerMetadataKey = "GitHubOwner";
     private const string GitHubRepoMetadataKey = "GitHubRepo";
 

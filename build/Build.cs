@@ -23,7 +23,9 @@ using static Fallout.Common.Tools.DotNet.DotNetTasks;
     InvokedTargets = new[] { nameof(publishRelease) },
     EnableGitHubToken = true,
     WritePermissions = new[] { GitHubActionsPermissions.Contents },
-    PublishArtifacts = false)]
+    PublishArtifacts = false,
+    ConcurrencyGroup = "release",
+    ConcurrencyCancelInProgress = false)]
 internal class Build : FalloutBuild
 {
     public static int Main() => Execute<Build>(x => x.test);
@@ -43,10 +45,6 @@ internal class Build : FalloutBuild
 
     private string releaseTag => BuildTag.Format(GitHubActions.Instance?.RunNumber ?? 0);
 
-    // Keeps the bundle/MSI ProductVersion actually unique per build - a pinned "1.0.0.0" made every
-    // local rebuild during dev register as the exact same product, which left Windows Installer
-    // unable to tell an upgrade from a no-op reinstall (orphaned duplicate ARP entries, missing files).
-    // CI builds get a traceable run-number-based version; local builds get a date/time-derived one.
     private string packageVersion => GitHubActions.Instance is { } gitHubActions
         ? $"1.0.{gitHubActions.RunNumber}.0"
         : $"1.0.{(DateTime.UtcNow.Date - new DateTime(2000, 1, 1)).Days}.{(int)(DateTime.UtcNow.TimeOfDay.TotalSeconds / 2)}";
@@ -92,18 +90,6 @@ internal class Build : FalloutBuild
             }
         });
 
-    private Target verifyFormat => _ => _
-        .DependsOn(restore)
-        .Executes(() =>
-            // dotnet format doesn't honor the .slnx solution-to-project platform mapping, so projects
-            // restricted to a single non-default platform (Platforms=x64) get evaluated without it and
-            // their XAML-generated code never materializes. Formatting each project file directly instead
-            // resolves the platform correctly.
-            RootDirectory.GlobFiles("src/**/*.csproj", "tests/**/*.csproj", "installer/**/*.csproj", "build/**/*.csproj")
-                .ForEach(project => DotNetFormat(s => s
-                    .SetProject(project)
-                    .EnableVerifyNoChanges())));
-
     private Target compile => _ => _
         .DependsOn(acceptWixEula, verifyFormat)
         .Executes(() => DotNetBuild(s => s
@@ -114,6 +100,16 @@ internal class Build : FalloutBuild
             .SetProperty("WixDotnetStarterGitHubRepo", gitHubRepoName)
             .EnableNoRestore()));
 
+    private Target verifyFormat => _ => _
+        .DependsOn(restore)
+        .Executes(() =>
+        {
+            DotNetBuild(s => s.SetProjectFile(_solution).SetConfiguration(Configuration.Debug));
+
+            DotNetFormat(s => s.SetProject(_solution).EnableVerifyNoChanges());
+            DotNetFormat(s => s.SetProject(RootDirectory / "build" / "App.Build.csproj").EnableVerifyNoChanges());
+        });
+
     private Target test => _ => _
         .DependsOn(compile)
         .Executes(() => DotNetTest(s => s
@@ -122,7 +118,7 @@ internal class Build : FalloutBuild
             .EnableNoBuild()));
 
     private Target packBundle => _ => _
-        .DependsOn(compile)
+        .DependsOn(test)
         .Executes(() =>
         {
             DotNetBuild(s => s

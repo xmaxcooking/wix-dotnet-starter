@@ -15,33 +15,14 @@
         </File>
       </Component>
 
-      <Component Id="App.Client.Windows.dll" Guid="CCA869E4-EF9C-402C-9422-F43EECFE7589">
-        <File Id="App.Client.Windows.dll" Source="$(var.App.TargetDir)App.Client.Windows.dll" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Client.Windows.runtimeconfig.json" Guid="03C22A83-9210-450B-B8A4-7581BE23241D">
-        <File Id="App.Client.Windows.runtimeconfig.json" Source="$(var.App.TargetDir)App.Client.Windows.runtimeconfig.json" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Client.Windows.deps.json" Guid="FF11A8A9-C24A-4DE9-962B-5BDBA5D1E252">
-        <File Id="App.Client.Windows.deps.json" Source="$(var.App.TargetDir)App.Client.Windows.deps.json" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Client.Controls.dll" Guid="BD5DA7DB-AC49-4CB1-860C-A38070A30981">
-        <File Id="App.Client.Controls.dll" Source="$(var.App.TargetDir)App.Client.Controls.dll" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Domain.dll" Guid="60D337A1-C7F1-4A6E-9A31-8F0D13EBF40A">
-        <File Id="App.Domain.dll" Source="$(var.App.TargetDir)App.Domain.dll" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Infrastructure.dll" Guid="7C6FF4E3-7A10-4C68-839F-CFADCD885968">
-        <File Id="App.Infrastructure.dll" Source="$(var.App.TargetDir)App.Infrastructure.dll" KeyPath="yes" />
-      </Component>
-
-      <Component Id="App.Updates.dll" Guid="D7838FCF-0406-4029-9701-08805EDAEBFF">
-        <File Id="App.Updates.dll" Source="$(var.App.TargetDir)App.Updates.dll" KeyPath="yes" />
-      </Component>
+      <!-- WindowsAppSDKSelfContained pulls in dozens of Windows App Runtime DLLs/winmds alongside
+           App.Client.Windows's own dependencies; harvest all of it instead of hand-listing each file,
+           which previously missed Microsoft.WindowsAppRuntime.dll and left the app unable to start.
+           WiX's Files harvester computes each Component's Guid deterministically from its path, so
+           these stay stable across rebuilds the same way the Guids above are pinned by hand. -->
+      <Files Include="$(var.App.TargetDir)*" Directory="INSTALLFOLDER">
+        <Exclude Files="$(var.App.TargetDir)App.Client.Windows.exe" />
+      </Files>
 
       <Component Id="RemoveStartMenuShortcut" Guid="56A5DCC3-7137-465D-9924-5BCB912EBC4D" Directory="ApplicationProgramsFolder">
         <RemoveFolder Id="CleanUpShortcut" On="uninstall" />

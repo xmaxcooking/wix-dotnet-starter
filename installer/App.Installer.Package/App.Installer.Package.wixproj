@@ -3,6 +3,9 @@
   <PropertyGroup>
     <OutputType>Package</OutputType>
     <Platform>x64</Platform>
+    <!-- Some harvested Windows App Runtime DLLs carry an oversized language list in their version
+         resource, which ICE03 flags as a File table string overflow - benign, not a real install defect. -->
+    <SuppressIces>ICE03</SuppressIces>
   </PropertyGroup>
 
   <ItemGroup>

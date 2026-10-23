@@ -10,10 +10,14 @@
                   Permanent="yes"
                   Vital="yes"
                   InstallArguments="&quot;[SampleBundleVariable]&quot;">
-        <!-- The apphost exe above is just a native stub; it needs these siblings in the same folder to find and run the managed app. -->
-        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).dll" />
-        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).deps.json" />
-        <Payload SourceFile="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).runtimeconfig.json" />
+        <!-- The apphost exe above is just a native stub; it needs the managed dll, its dependency
+             assemblies (e.g. App.Infrastructure.dll), deps.json and runtimeconfig.json alongside it
+             to find and run the app. Harvest everything else dotnet build produced instead of listing
+             each dependency by hand - that list changes as App.Installer.Tool's references change. -->
+        <Payloads Include="$(var.InstallTool.TargetDir)*">
+          <Exclude Files="$(var.InstallTool.TargetDir)$(var.InstallTool.TargetName).exe" />
+          <Exclude Files="$(var.InstallTool.TargetDir)*.pdb" />
+        </Payloads>
       </ExePackage>
     </PackageGroup>
   </Fragment>

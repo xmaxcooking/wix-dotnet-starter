@@ -6,6 +6,12 @@
     <!-- Some harvested Windows App Runtime DLLs carry an oversized language list in their version
          resource, which ICE03 flags as a File table string overflow - benign, not a real install defect. -->
     <SuppressIces>ICE03</SuppressIces>
+    <!-- build/Build.cs passes a per-build WixDotnetStarterPackageVersion for every real build (see
+         packageVersion) - this default is only for a plain `dotnet build` outside the Fallout pipeline.
+         Folded into DefineConstants locally (not set globally) so it reaches .wxs files as $(var.X)
+         without also leaking into every C# ProjectReference's csc invocation as a bogus /define:. -->
+    <WixDotnetStarterPackageVersion Condition=" '$(WixDotnetStarterPackageVersion)' == '' ">1.0.0.0</WixDotnetStarterPackageVersion>
+    <DefineConstants>$(DefineConstants);WixDotnetStarterPackageVersion=$(WixDotnetStarterPackageVersion)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

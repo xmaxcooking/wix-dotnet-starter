@@ -3,7 +3,7 @@
 
   <!-- NEVER change UpgradeCode once shipped, or bundle upgrades will stop working. -->
   <Bundle Name="App.Client.Windows Sample"
-          Version="1.0.0.0"
+          Version="$(var.WixDotnetStarterPackageVersion)"
           Manufacturer="Your Company"
           UpgradeCode="93EC7F40-82CC-46B7-AF11-75BC480A637F"
           IconSourceFile="$(var.ProjectDir)..\..\assets\icon.ico">

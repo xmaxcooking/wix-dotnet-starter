@@ -12,7 +12,8 @@
         Theme="rtfLicense"
         LicenseFile="$(var.ProjectDir)..\..\assets\License.rtf"
         LogoFile="$(var.ProjectDir)..\..\assets\logo.png"
-        SuppressOptionsUI="yes" />
+        SuppressOptionsUI="yes"
+        LaunchTarget="[ProgramFiles64Folder]App.Client.Windows Sample\App.Client.Windows.exe" />
     </BootstrapperApplication>
 
     <bal:Condition Condition="VersionNT &gt;= v10.0" Message="This application requires Windows 10 or later." />

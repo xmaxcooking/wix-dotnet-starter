@@ -69,4 +69,16 @@ public class UpdateSettingsTests
 
         settings.SetChannel(UpdateChannel.Beta);
     }
+
+    [TestMethod]
+    public void SetChannel_ResetsTheUpdateCheckCooldown_SoTheNextLaunchChecksImmediately()
+    {
+        var fileSystem = new FakeFileSystem();
+        var logger = NullLogger<UpdateSettings>.Instance;
+        var settings = new UpdateSettings(fileSystem, logger);
+
+        settings.SetChannel(UpdateChannel.Beta);
+
+        Assert.AreEqual(1, fileSystem.DeletedFilePaths.Count);
+    }
 }

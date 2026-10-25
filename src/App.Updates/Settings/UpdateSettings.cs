@@ -53,6 +53,15 @@ public sealed class UpdateSettings : IUpdateSettingsStore
         {
             _logger.LogWarning(ex, "Could not persist update-channel setting.");
         }
+
+        try
+        {
+            _fileSystem.DeleteFile(SpecialFiles.LastUpdateCheck);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not reset the update-check cooldown.");
+        }
     }
 
     private sealed class StoredSettings

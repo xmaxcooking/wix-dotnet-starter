@@ -7,4 +7,5 @@ public interface IFileSystem
     void WriteAllText(string path, string contents);
     void CreateDirectory(string path);
     Stream CreateFile(string path);
+    void DeleteFile(string path);
 }

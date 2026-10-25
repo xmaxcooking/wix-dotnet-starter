@@ -3,6 +3,25 @@
 Template repository for .NET 10 projects packaged with a WiX v7 MSI installer and Burn
 bootstrapper.
 
+## A known limitation: no simple custom installer UI
+
+WiX v4+ no longer lets you override a single stock dialog (e.g. adding a second checkbox to
+`ExitDialog`) by redeclaring it with the same Id - a duplicate `Dialog`/`Control` symbol pulled in
+from a referenced library is a hard linker error now, not the silent override WiX v3 allowed.
+Combined with Burn's `MsiPackage` not setting `DisplayInternalUI`, the MSI's own dialogs -
+including this template's "create a desktop shortcut" `ExitDialog` checkbox - never actually
+appear when running the real `App.Installer.Bundle.exe`; only when running the raw `.msi`
+directly. Adding a second real checkbox (e.g. "launch after install") would require writing a
+full custom Bootstrapper Application - a WPF app owning the entire install UI - which is
+disproportionate scope for a template meant to stay simple. `wixstdba`'s own built-in equivalent
+is a `LaunchTarget` button, not a checkbox.
+
+If your installer needs easy custom wizard checkboxes (desktop icon, launch-after-install, etc.)
+and doesn't need the MSI/Windows Installer format specifically, see the sibling template
+[inno-setup-dotnet-starter](https://github.com/xmaxcooking/inno-setup-dotnet-starter) - it
+demonstrates the same patterns (custom install-time actions, an update-channel self-updater)
+using Inno Setup instead, where both of those checkboxes are a built-in, two-line feature.
+
 ## Layout
 
 ```
